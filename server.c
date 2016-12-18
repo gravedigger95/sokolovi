@@ -24,15 +24,60 @@
 
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT   27015
+#define BUF 128
+#define TOT 10
+#define filename "/home/pi/Documents/ra193/ORMDNS/lab_4/src/lista.txt"
+struct klijenti{
+	char ip[100];
+	char ime[100];
+};
 
 int main(int argc , char *argv[])
 {
 
-
-    int socket_desc , client_sock , c , read_size;
+    int socket_desc , client_sock , c ;
     struct sockaddr_in server , client;
-    char client_message[DEFAULT_BUFLEN];
+    struct klijenti klijent;
+	int pid;
    
+FILE *fp=fopen(filename,"r");
+if (fp == NULL) 
+{
+    printf("File not found!\n");
+    return NULL;
+}
+else 
+{
+    printf("Found file %s\n", filename);
+}
+/*char line[TOT][BUF];
+int i=0;
+int total=0;
+while(fgets(line[i], BUF, fp)) {
+
+        line[i][strlen(line[i]) - 1] = '\0';
+        i++;
+    }
+    total = i;
+
+    for(i = 0; i < total; ++i)
+        printf("%s\n", line[i]);
+fclose(fp);
+*/
+int i=0;
+int total;
+char ipievi[TOT][BUF];
+while(fscanf(fp,"%s %s\n",klijent.ime,klijent.ip)!=EOF){
+	ipievi[i][strlen(klijent.ip)-1]='\0';
+	strcpy(ipievi[i],klijent.ip);
+	i++;
+}
+
+total =i;
+for(i = 0; i < total; ++i)
+        printf("%s\n", ipievi[i]);
+
+fclose(fp);
     //Create socket
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     if (socket_desc == -1)
@@ -63,15 +108,46 @@ int main(int argc , char *argv[])
     c = sizeof(struct sockaddr_in);
 
     //accept connection from an incoming client
+	while(1){
+
     client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
     if (client_sock < 0)
     {
         perror("accept failed");
         return 1;
     }
-    puts("Connection accepted");
+	    puts("Connection accepted");
+		pid = fork();
+		
+		if(pid < 0)
+		{
+			perror("Error on fork");
+			return(1);
+		}
+		
+		if(pid == 0)
+		{
+			close(socket_desc);
+			doprocessing(client_sock);
+			return(0);
+		}
+		else{
+			close(client_sock);
+		}
+	}
+	
+	close(socket_desc);
 
+    return 0;
+	
+}
+
+void doprocessing(int client_sock){
+	int read_size;
+	char client_message[DEFAULT_BUFLEN];
+	
     //Receive a message from client
+	
     while( (read_size = recv(client_sock , client_message , DEFAULT_BUFLEN , 0)) > 0 )
     {
         printf("Bytes received: %d\n", read_size);
@@ -89,8 +165,11 @@ int main(int argc , char *argv[])
         perror("recv failed");
     }
 
-	close(socket_desc);
-
-    return 0;
 }
 
+/*
+void upisUFajl(FILE *in, char ime[], char ip[]){
+	while(fscanf("%s %s")!=EOF)	
+	fprintf(in,"%s %s\n",ime,ip);
+}
+*/
