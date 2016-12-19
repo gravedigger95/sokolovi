@@ -30,6 +30,9 @@
 int main(int argc , char *argv[])
 {
     int sock;
+int num;
+char buff[DEFAULT_BUFLEN];
+
     struct sockaddr_in server;
     char *message;
 	int messLen = 0;
@@ -42,7 +45,7 @@ int main(int argc , char *argv[])
     }
     puts("Socket created");
 
-    server.sin_addr.s_addr = inet_addr("192.168.9.105");
+    server.sin_addr.s_addr = inet_addr("192.168.0.25");
     server.sin_family = AF_INET;
     server.sin_port = htons(DEFAULT_PORT);
 
@@ -69,7 +72,9 @@ int main(int argc , char *argv[])
 			messLen++;
 			strcat(message, c);
 		}
+
 		
+
 		//Send some data
 		if( send(sock , message , strlen(message), 0) < 0)
 		{
@@ -77,9 +82,14 @@ int main(int argc , char *argv[])
 			return 1;
 		}
 
+if((num = recv(sock, buff, sizeof(buff),0))!=-1){
+    buff[num] = '\0';
+    printf("Message received: %s\nNumber of bytes received: %d\n", buff,num);
+bzero(buff,sizeof(buff));
+}
+
 		puts("Client message:");
 		puts(message);
-
 		free(message);
 	}
     close(sock);
