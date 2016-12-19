@@ -38,7 +38,8 @@ int main(int argc , char *argv[])
     int socket_desc , client_sock , c ;
     struct sockaddr_in server , client;
     struct klijenti klijent;
-	int pid;
+    int pid;
+int n=0;
    
 FILE *fp=fopen(filename,"r");
 if (fp == NULL) 
@@ -50,6 +51,7 @@ else
 {
     printf("Found file %s\n", filename);
 }
+
 /*char line[TOT][BUF];
 int i=0;
 int total=0;
@@ -64,21 +66,22 @@ while(fgets(line[i], BUF, fp)) {
         printf("%s\n", line[i]);
 fclose(fp);
 */
+
 int i=0;
-int total;
-char ipievi[TOT][BUF];
+char ip_s[TOT][BUF];
+char names[TOT][BUF];
 while(fscanf(fp,"%s %s\n",klijent.ime,klijent.ip)!=EOF){
-	ipievi[i][strlen(klijent.ip)-1]='\0';
-	strcpy(ipievi[i],klijent.ip);
+	ip_s[i][strlen(klijent.ip)-1]='\0';
+	strcpy(ip_s[i],klijent.ip);
+	names[i][strlen(klijent.ime)-1]='\0';
+	strcpy(names[i],klijent.ime);
 	i++;
 }
-
-total =i;
-for(i = 0; i < total; ++i)
-        printf("%s\n", ipievi[i]);
-
+int total=i;
 fclose(fp);
-    //Create socket
+ 
+
+   //Create socket
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
     if (socket_desc == -1)
     {
@@ -127,8 +130,10 @@ fclose(fp);
 		
 		if(pid == 0)
 		{
+
 			close(socket_desc);
-			doprocessing(client_sock);
+			doprocessing(client_sock,ip_s,names,total);
+			
 			return(0);
 		}
 		else{
@@ -142,18 +147,48 @@ fclose(fp);
 	
 }
 
-void doprocessing(int client_sock){
+void doprocessing(int client_sock,char ip_s[][BUF],char names[][BUF],int total){
 	int read_size;
 	char client_message[DEFAULT_BUFLEN];
-	
-    //Receive a message from client
-	
+	    //Receive a message from client
+	int k;
+	char* poruka="Unesi ponovo sajt\n";
+int n=0;
+
+
+
+
     while( (read_size = recv(client_sock , client_message , DEFAULT_BUFLEN , 0)) > 0 )
     {
         printf("Bytes received: %d\n", read_size);
 		*(client_message + read_size) = '\0';
-		printf("Messagee: %s\n", client_message);
-    }
+		//printf("Messagee: %s\n", client_message);
+	n=0;
+	for(k=0;k<total;k++){
+		if(strcmp(client_message,names[k])==0){
+		printf("%s\n",ip_s[k]);
+		if((n=send(client_sock,ip_s[k]+'\0',strlen(ip_s[k]),0))<0){
+		puts("Send failed\n");
+	return 1;
+}
+		printf("%d\n",n);
+		
+} 
+}
+
+
+if(n==0){
+printf("Nije uneo vazeci sajt\n");
+	
+	if(send(client_sock,poruka,strlen(poruka),0)<0){
+	puts("Send failed\n");
+	return 1;
+}
+}
+
+
+
+
 
     if(read_size == 0)
     {
@@ -166,7 +201,7 @@ void doprocessing(int client_sock){
     }
 
 }
-
+}
 /*
 void upisUFajl(FILE *in, char ime[], char ip[]){
 	while(fscanf("%s %s")!=EOF)	
