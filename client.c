@@ -82,11 +82,15 @@ char buff[DEFAULT_BUFLEN];
 			return 1;
 		}
 
-if((num = recv(sock, buff, sizeof(buff),0))!=-1){
+if((num = recv(sock, buff, DEFAULT_BUFLEN,0))>0){
+
     buff[num] = '\0';
+
     printf("Message received: %s\nNumber of bytes received: %d\n", buff,num);
-bzero(buff,sizeof(buff));
+
 }
+bzero(buff,sizeof(buff));
+
 
 		puts("Client message:");
 		puts(message);
