@@ -30,9 +30,8 @@
 int main(int argc , char *argv[])
 {
     int sock;
-int num;
-char buff[DEFAULT_BUFLEN];
-
+    int num;
+    char buff[DEFAULT_BUFLEN];
     struct sockaddr_in server;
     char *message;
 	int messLen = 0;
@@ -58,7 +57,8 @@ char buff[DEFAULT_BUFLEN];
 
     puts("Connected\n");
 	
-	while(1) {
+	while(1) 
+    {
 		puts("Enter a message:");
 		char *c = (char *)malloc(1);
 
@@ -66,7 +66,8 @@ char buff[DEFAULT_BUFLEN];
 		memset(message, '\0', 1);
 		messLen = 0;
 
-		while( read(0, c, 1) > 0) {
+		while( read(0, c, 1) > 0) 
+        {
 			if( *c == '\n') break;
 			message = (char *)realloc(message, messLen + 1);
 			messLen++;
@@ -82,22 +83,18 @@ char buff[DEFAULT_BUFLEN];
 			return 1;
 		}
 
-if((num = recv(sock, buff, DEFAULT_BUFLEN,0))>0){
+        if((num = recv(sock, buff, DEFAULT_BUFLEN,0))>0)
+        {
+            buff[num] = '\0';
+			printf("Message received: %s\n", buff);
 
-    buff[num] = '\0';
-
-    printf("Message received: %s\nNumber of bytes received: %d\n", buff,num);
-
-}
-bzero(buff,sizeof(buff));
-
-
-		puts("Client message:");
-		puts(message);
+        }
+        bzero(buff,sizeof(buff));
 		free(message);
 	}
     close(sock);
 
     return 0;
 }
+
 
