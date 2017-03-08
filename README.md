@@ -1,1 +1,1 @@
-Simple client-server architecture with DNS.
+Simple client-server architecture.
