@@ -1,1 +1,1 @@
-# sokolovi
+Simple client-server architecture with DNS.
